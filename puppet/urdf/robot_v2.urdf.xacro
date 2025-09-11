@@ -1,3 +1,5 @@
+  <!-- robot v2 with orin holder -->
+
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="config">
 
