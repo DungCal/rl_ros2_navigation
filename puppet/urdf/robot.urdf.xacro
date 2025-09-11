@@ -1,3 +1,4 @@
+<!-- robot puppet v1 -->
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="puppet">
   <!-- Macro for wheel links -->
