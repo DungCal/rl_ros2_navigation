@@ -1,3 +1,5 @@
+#training vae and pose predictor networks
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
