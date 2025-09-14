@@ -1,3 +1,6 @@
+#actor net (136, action dim)
+#critic net (136, 1)
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
