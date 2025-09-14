@@ -1,3 +1,7 @@
+// .ino file to connect ESP32 to orin
+// 
+// code control motor driver and encoder, connect to orin via CAN bus
+
 #include <Wire.h>
 #include <QuickPID.h>
 #include <driver/twai.h>
