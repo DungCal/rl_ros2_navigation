@@ -1,3 +1,5 @@
+#merge between scan generated from rgb d cameras and scans from lidars
+
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
