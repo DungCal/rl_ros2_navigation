@@ -1,3 +1,5 @@
+#actor net, critic net with hidden layers (256, 256)
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
