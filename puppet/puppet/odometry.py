@@ -1,3 +1,5 @@
+#calculate the movement of the robot with respect to intial state
+
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
@@ -49,7 +51,7 @@ def euler_to_quaternion(roll, pitch, yaw):
 class PureEncoderOdometryNode(Node):
     """
     Node ROS 2 tính toán Odometry chỉ dựa trên dữ liệu từ encoder bánh xe,
-    publish lên /odom_encoder. TF transform có thể được bật/tắt.
+    publish lên /odom. TF transform có thể được bật/tắt.
     Bao gồm tham số hiệu chỉnh vận tốc bánh xe.
     """
     def __init__(self):
@@ -92,6 +94,7 @@ class PureEncoderOdometryNode(Node):
         self.right_wheel_scale = self.get_parameter('right_wheel_velocity_scale').get_parameter_value().double_value
 
 
+        #In log ra man hinh
         self.get_logger().info(f"Subscribing to JointStates: {self.joint_state_topic}")
         self.get_logger().info(f"Publishing Odometry to: {self.odom_encoder_topic_out} with frame_id='{self.odom_encoder_frame_id}'")
         if self.should_publish_tf:
@@ -113,6 +116,7 @@ class PureEncoderOdometryNode(Node):
         self.last_update_time = self.get_clock().now()
 
         # --- Subscribers ---
+        #use reliabel to get the accurate odometry data
         qos_profile_reliable = rclpy.qos.QoSProfile(depth=10, reliability=rclpy.qos.ReliabilityPolicy.RELIABLE)
         self.joint_state_sub = self.create_subscription(
             JointState, self.joint_state_topic, self.joint_state_callback, qos_profile_reliable)
@@ -167,9 +171,11 @@ class PureEncoderOdometryNode(Node):
                 v_left_scaled = v_left_raw * self.left_wheel_scale
                 
                 # Tính toán vận tốc robot dựa trên vận tốc đã hiệu chỉnh
+                #linear velo
                 vx_robot = (v_right_scaled + v_left_scaled) / 2.0
                 if abs(self.track_width) > 1e-6:
                     # Quy ước: omega_z dương là quay trái (CCW) -> v_right > v_left
+                    #angular velo
                     omega_z_robot = (v_right_scaled - v_left_scaled) / self.track_width
                 else: omega_z_robot = 0.0
 
@@ -201,6 +207,7 @@ class PureEncoderOdometryNode(Node):
         odom_msg.twist.covariance = np.diag([0.05**2, 1e-9, 1e-9, 1e-9, 1e-9, (np.deg2rad(2.0))**2]).flatten().tolist()
         self.odom_pub.publish(odom_msg)
 
+        #publish realtime transformation between baselink and odom for tf tree 
         if self.should_publish_tf and self.tf_broadcaster:
             t = TransformStamped()
             t.header.stamp = current_time.to_msg()
