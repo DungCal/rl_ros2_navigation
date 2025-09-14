@@ -14,13 +14,13 @@ class FastWheelVelocityCANReader(Node):
         
         # Cấu hình CAN
         self.declare_parameter('can_interface', 'can0')
-        self.declare_parameter('calibration_factor', 1.15)
+        self.declare_parameter('calibration_factor', 1.15)# he so dieu chinh do chenh lech goc quay banh xe trong thuc te va trong rviz
         
         can_interface = self.get_parameter('can_interface').get_parameter_value().string_value
         self.calibration_factor = self.get_parameter('calibration_factor').get_parameter_value().double_value
         
         # Khởi tạo publisher với queue size lớn hơn
-        self.publisher_ = self.create_publisher(JointState, 'joint_states', 1)  # Queue size nhỏ để real-time
+        self.publisher_ = self.create_publisher(JointState, 'joint_states', 1)  # Queue size nhỏ để real-time(n_depth)
         
         # Khởi tạo thông điệp JointState
         self.joint_msg = JointState()
@@ -56,6 +56,7 @@ class FastWheelVelocityCANReader(Node):
         self.last_rpm_values = [0.0, 0.0, 0.0, 0.0]
         
         # Bắt đầu CAN reader thread
+        # read can 
         self.can_thread = threading.Thread(target=self.can_reader_thread, daemon=True)
         self.can_thread.start()
         
@@ -133,7 +134,7 @@ class FastWheelVelocityCANReader(Node):
             joint_msg.position = positions
             joint_msg.velocity = velocities
             
-            self.publisher_.publish(joint_msg)
+            self.publisher_.publish(joint_msg)# publish len JointState()
             self.publish_count += 1
             
             # Clear event sau khi publish
