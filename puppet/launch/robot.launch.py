@@ -1,3 +1,5 @@
+#start up and configure a number of executables containing ROS 2 nodes simultaneously.
+
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
@@ -16,6 +18,7 @@ def generate_launch_description():
         'use_sim_time', default_value='false', description='Use simulation clock'
     )
 
+    #parse xacro to urdf, then publish robot model to /robot_description
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -27,6 +30,7 @@ def generate_launch_description():
         }]
     )
 
+    #publish the joint states(velocity of 4 wheels) of the robot to /joint_states
     joint_states_node = Node(
         package='puppet',
         executable='joint_states',
@@ -34,6 +38,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
+    #calculate the movment of the robot based on the data from the wheel encoders
     odometry_node = Node(
         package='puppet',
         executable='odometry',
@@ -41,7 +46,7 @@ def generate_launch_description():
         output='screen',
     )
     
-
+    #start up sllidar a2m8, publish scan data to /scan
     lidar_node = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(
@@ -57,6 +62,7 @@ def generate_launch_description():
                      'inverted': 'false', 
                      'angle_compensate': 'true'}.items())
 
+    #convert depth image from realsense camera to laser scan, publish to /depth_scan
     depth_to_laserscan = Node(
             package='depthimage_to_laserscan',
             executable='depthimage_to_laserscan_node',
@@ -79,6 +85,7 @@ def generate_launch_description():
                 'roi_height': 0.3
             }]
         )
+    #merge the scan data from lidar and depth camera, publish to /merged_scan
     scan_merger = Node(
             package='puppet',
             executable='scan_merger',
@@ -86,6 +93,7 @@ def generate_launch_description():
             output='screen'
         )
 
+    #get the robot pose in map frame, publish to /fast_pose    
     get_fast_pose = Node(
         package='puppet',
         executable='robot_pose',
@@ -93,7 +101,7 @@ def generate_launch_description():
         output='screen'
     )
 
-
+    #parameters for slam_toolbox
     slam_toolbox_params = {
         'use_sim_time': False, # Truyền LaunchConfiguration
         'odom_frame': 'odom', # Truyền LaunchConfiguration
@@ -138,6 +146,7 @@ def generate_launch_description():
         'interactive_mode': True
     }
 
+    #start up slam_toolbox node with the above parameters
     slam_toolbox_node = Node(
         parameters=[slam_toolbox_params], # Chỉ truyền dictionary này
         package='slam_toolbox',
@@ -146,6 +155,7 @@ def generate_launch_description():
         output='screen'
     )
 
+    # subscribe to /cmd_vel, send control signals to motor driver via CAN bus
     controller_node = Node(
         package='puppet',
         executable='controller',
@@ -153,6 +163,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
+    # automatically map the environment, get data
     auto_mapping = Node(
         package='puppet',
         executable='auto_mapping',
