@@ -1,3 +1,7 @@
+#actor and critic network using nn, 
+#actor in 136, out action_dim
+#critic in 138, out 1
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
