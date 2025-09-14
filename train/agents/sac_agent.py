@@ -1,3 +1,5 @@
+#agent SAC from scratch, using entropy and actor-critic archs
+
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
